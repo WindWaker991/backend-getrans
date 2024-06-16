@@ -1,26 +1,73 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateBankAccountDto } from './dto/create-bank_account.dto';
 import { UpdateBankAccountDto } from './dto/update-bank_account.dto';
+import { PrismaService } from '../../prisma/prisma.service';
+import { error } from 'console';
 
 @Injectable()
 export class BankAccountsService {
+  constructor(private prisma: PrismaService) {}
+
   create(createBankAccountDto: CreateBankAccountDto) {
-    return 'This action adds a new bankAccount';
+    const { firstName, lastName, email, password, rut } = createBankAccountDto;
+    const user = this.prisma.bank_accounts.findUnique({
+      where: { email: email },
+    });
+
+    if (user) {
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+    }
+    try {
+      return this.prisma.bank_accounts.create({
+        data: {
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          password: password,
+          rut: rut,
+        },
+      });
+    } catch (error) {
+      throw new HttpException('Error creating user', HttpStatus.BAD_REQUEST);
+    }
   }
 
   findAll() {
-    return `This action returns all bankAccounts`;
+    try {
+      return this.prisma.bank_accounts.findMany();
+    } catch (error) {
+      throw new HttpException('Error fetching users', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} bankAccount`;
+  findOne(accountId: string) {
+    try {
+      return this.prisma.bank_accounts.findUnique({
+        where: { id: accountId },
+      });
+    } catch (error) {
+      throw new HttpException('Error fetching user', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  update(id: number, updateBankAccountDto: UpdateBankAccountDto) {
-    return `This action updates a #${id} bankAccount`;
+  update(accountId: string, updateBankAccountDto: UpdateBankAccountDto) {
+    try {
+      return this.prisma.bank_accounts.update({
+        where: { id: accountId },
+        data: updateBankAccountDto,
+      });
+    } catch (error) {
+      throw new HttpException('Error updating user', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} bankAccount`;
+  remove(accountId: string) {
+    try {
+      return this.prisma.bank_accounts.delete({
+        where: { id: accountId },
+      });
+    } catch (error) {
+      throw new HttpException('Error deleting user', HttpStatus.BAD_REQUEST);
+    }
   }
 }
