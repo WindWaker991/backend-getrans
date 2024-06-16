@@ -22,16 +22,16 @@ model bank_accounts {
   password              String
   rut                   String             @unique
   account_number        String             @unique @default(cuid())
-  contact_list          contacts           @relation(fields: [contact_id], references: [id])
-  contact_id            String             @unique
   account_contacts      account_contacts[]
   transfers_destination transfers[]        @relation(name: "destination_account")
   transfers_origin      transfers[]        @relation(name: "origin_account")
+  contacts              contacts[]
 }
 
 model contacts {
   id               String             @id @default(uuid())
-  bank_account     bank_accounts?
+  bank_account_id  String
+  bank_account     bank_accounts      @relation(fields: [bank_account_id], references: [id])
   account_contacts account_contacts[]
 }
 
