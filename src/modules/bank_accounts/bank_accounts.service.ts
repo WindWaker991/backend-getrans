@@ -8,9 +8,9 @@ import { error } from 'console';
 export class BankAccountsService {
   constructor(private prisma: PrismaService) {}
 
-  create(createBankAccountDto: CreateBankAccountDto) {
+  async create(createBankAccountDto: CreateBankAccountDto) {
     const { firstName, lastName, email, password, rut } = createBankAccountDto;
-    const user = this.prisma.bank_accounts.findUnique({
+    const user = await this.prisma.bank_accounts.findUnique({
       where: { email: email },
     });
 
@@ -18,7 +18,7 @@ export class BankAccountsService {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
     try {
-      return this.prisma.bank_accounts.create({
+      return await this.prisma.bank_accounts.create({
         data: {
           firstName: firstName,
           lastName: lastName,
@@ -32,17 +32,17 @@ export class BankAccountsService {
     }
   }
 
-  findAll() {
+  async findAll() {
     try {
-      return this.prisma.bank_accounts.findMany();
+      return await this.prisma.bank_accounts.findMany();
     } catch (error) {
       throw new HttpException('Error fetching users', HttpStatus.BAD_REQUEST);
     }
   }
 
-  findOne(accountId: string) {
+  async findOne(accountId: string) {
     try {
-      return this.prisma.bank_accounts.findUnique({
+      return await this.prisma.bank_accounts.findUnique({
         where: { id: accountId },
       });
     } catch (error) {
@@ -50,9 +50,9 @@ export class BankAccountsService {
     }
   }
 
-  update(accountId: string, updateBankAccountDto: UpdateBankAccountDto) {
+  async update(accountId: string, updateBankAccountDto: UpdateBankAccountDto) {
     try {
-      return this.prisma.bank_accounts.update({
+      return await this.prisma.bank_accounts.update({
         where: { id: accountId },
         data: updateBankAccountDto,
       });
@@ -61,9 +61,9 @@ export class BankAccountsService {
     }
   }
 
-  remove(accountId: string) {
+  async remove(accountId: string) {
     try {
-      return this.prisma.bank_accounts.delete({
+      return await this.prisma.bank_accounts.delete({
         where: { id: accountId },
       });
     } catch (error) {
