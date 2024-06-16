@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { TransfersService } from './transfers.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
-import { UpdateTransferDto } from './dto/update-transfer.dto';
 
 @Controller('transfers')
 export class TransfersController {
-  constructor(private readonly transfersService: TransfersService) {}
+  constructor(private readonly transfersService: TransfersService) { }
 
   @Post()
   create(@Body() createTransferDto: CreateTransferDto) {
@@ -19,16 +18,11 @@ export class TransfersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.transfersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransferDto: UpdateTransferDto) {
-    return this.transfersService.update(+id, updateTransferDto);
+    return this.transfersService.findOne(id);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.transfersService.remove(+id);
+    return this.transfersService.remove(id);
   }
 }
