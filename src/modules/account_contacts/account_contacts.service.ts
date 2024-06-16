@@ -9,8 +9,8 @@ export class AccountContactsService {
     private prisma: PrismaService,
   ) {}
 
-  create(createAccountContactDto: CreateAccountContactDto) {
-    return this.prisma.account_contacts.create({
+  async  create(createAccountContactDto: CreateAccountContactDto) {
+    return await this.prisma.account_contacts.create({
       data:{
         contacts: {
           connect:{
@@ -27,12 +27,12 @@ export class AccountContactsService {
     });
   }
 
-  findAll() {
-    return this.prisma.account_contacts.findMany();
+  async findAll() {
+    return await this.prisma.account_contacts.findMany();
   }
 
-  findOne(id: string) {
-    return this.prisma.account_contacts.findUnique({
+  async findOne(id: string) {
+    return await this.prisma.account_contacts.findUnique({
       where:{
         id:id,
       }
@@ -43,8 +43,8 @@ export class AccountContactsService {
     return `This action updates a #${id} accountContact`;
   }
 
-  remove(id: string) {
-    return this.prisma.account_contacts.delete({
+  async remove(id: string) {
+    return await  this.prisma.account_contacts.delete({
       where:{
         id:id,
       }
