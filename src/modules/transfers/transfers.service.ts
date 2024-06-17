@@ -1,18 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { PrismaService } from '../../prisma/prisma.service';
-import { BankAccountsService } from '../bank_accounts/bank_accounts.service';
 
 @Injectable()
 export class TransfersService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly bankAccountsService: BankAccountsService
   ) { }
 
-  create(createTransferDto: CreateTransferDto) {
+  async create(createTransferDto: CreateTransferDto) {
 
-    return this.prismaService.transfers.create({
+    return await this.prismaService.transfers.create({
       //TODO: revisar que el findOne funcione
       // accountBankOrigFound = this.bankAccountsService.findOne(createTransferDto.originId);
       // if(!accountBankOrigFound) throw new NotFoundException('Origin account not found');
@@ -36,8 +34,8 @@ export class TransfersService {
     });
   }
 
-  findAll() {
-    return this.prismaService.transfers.findMany({
+  async findAll() {
+    return await this.prismaService.transfers.findMany({
       include: {
         origin: true,
         destination: true
@@ -45,8 +43,8 @@ export class TransfersService {
     });
   }
 
-  findOne(id: string) {
-    return this.prismaService.transfers.findUnique({
+  async findOne(id: string) {
+    return await this.prismaService.transfers.findUnique({
       where: {
         id: id,
       },
@@ -57,10 +55,10 @@ export class TransfersService {
     });
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     const transfer = this.findOne(id);
     if (!transfer) throw new NotFoundException('Transfer not found');
-    return this.prismaService.transfers.delete({
+    return await this.prismaService.transfers.delete({
       where: {
         id: id,
       },
