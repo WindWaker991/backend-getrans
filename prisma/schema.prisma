@@ -20,6 +20,7 @@ model bank_accounts {
   lastName              String
   email                 String             @unique
   password              String
+  me_pass               Int                @default(000000)
   rut                   String             @unique
   account_number        String             @unique @default(cuid())
   account_contacts      account_contacts[]
