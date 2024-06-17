@@ -1,29 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAccountContactDto } from './dto/create-account_contact.dto';
 import { UpdateAccountContactDto } from './dto/update-account_contact.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class AccountContactsService {
-  constructor(
-    private prisma: PrismaService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  async  create(createAccountContactDto: CreateAccountContactDto) {
+  async create(createAccountContactDto: CreateAccountContactDto) {
     return await this.prisma.account_contacts.create({
-      data:{
+      data: {
         contacts: {
-          connect:{
+          connect: {
             id: createAccountContactDto.contact_id,
-          }
+          },
         },
 
         bank_accounts: {
-          connect:{
+          connect: {
             id: createAccountContactDto.account_id,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 
@@ -33,9 +31,9 @@ export class AccountContactsService {
 
   async findOne(id: string) {
     return await this.prisma.account_contacts.findUnique({
-      where:{
-        id:id,
-      }
+      where: {
+        id: id,
+      },
     });
   }
 
@@ -44,10 +42,10 @@ export class AccountContactsService {
   }
 
   async remove(id: string) {
-    return await  this.prisma.account_contacts.delete({
-      where:{
-        id:id,
-      }
+    return await this.prisma.account_contacts.delete({
+      where: {
+        id: id,
+      },
     });
   }
 }

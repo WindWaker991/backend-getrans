@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateBankAccountDto } from './dto/create-bank_account.dto';
 import { UpdateBankAccountDto } from './dto/update-bank_account.dto';
 import { PrismaService } from '../../prisma/prisma.service';
-import { error } from 'console';
 
 @Injectable()
 export class BankAccountsService {
