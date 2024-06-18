@@ -1,26 +1,43 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BankAccountsService } from '../bank_accounts/bank_accounts.service';
+import { LoginPayloadDto } from './dto/login-payload.dto';
+import { CreateBankAccountDto } from '../bank_accounts/dto/create-bank_account.dto';
+import { ValidatePassDto } from './dto/validate-pass.dto';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private readonly bankAccountsService: BankAccountsService,
+    private jwtService: JwtService
+  ) { }
+
+  async login(loginPayloadDto: LoginPayloadDto): Promise<any> {
+    const userFound = await this.bankAccountsService.findByEmail(loginPayloadDto.email)
+
+    const passwordMatch = await bcrypt.compare(loginPayloadDto.password, userFound.password)
+    if (!passwordMatch) throw new BadRequestException('Invalid credentials')
+    if (!userFound) throw new NotFoundException('User not found')
+
+    const payload = { email: userFound.email, sub: userFound.id }
+    const access_token = await this.jwtService.signAsync(payload)
+    return {
+      user: userFound,
+      access_token: access_token
+    }
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async register(createBankAccountDto: CreateBankAccountDto) {
+    return await this.bankAccountsService.create(createBankAccountDto)
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  async validateMePass(validate_me_pass: ValidatePassDto) {
+    return await null
   }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
+  async getProfile() {
+    return "Pong!"
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
 }

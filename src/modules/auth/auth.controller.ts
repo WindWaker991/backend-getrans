@@ -1,34 +1,45 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller
+  , Get,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Request
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { CreateBankAccountDto } from '../bank_accounts/dto/create-bank_account.dto';
+import { LoginPayloadDto } from './dto/login-payload.dto';
+import { ValidatePassDto } from './dto/validate-pass.dto';
+import { validateHeaderName } from 'http';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @HttpCode(HttpStatus.OK)
+  @Post('login')
+  login(@Body() createAuthDto: LoginPayloadDto) {
+    return this.authService.login(createAuthDto);
+  }
+  @HttpCode(HttpStatus.CREATED)
+  @Post('register')
+  register(@Body() createBankAccountDto: CreateBankAccountDto) {
+    return this.authService.register(createBankAccountDto);
+  }
+  @HttpCode(HttpStatus.OK)
+  @Post('validate_me_pass')
+  create(@Body() validateMePass: ValidatePassDto) {
+    return this.authService.validateMePass(validateMePass);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  getProfile(@Request() req: any) {
+    return req.user;
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
 }

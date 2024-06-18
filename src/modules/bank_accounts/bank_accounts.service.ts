@@ -2,10 +2,22 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateBankAccountDto } from './dto/create-bank_account.dto';
 import { UpdateBankAccountDto } from './dto/update-bank_account.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class BankAccountsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
+
+  private async hashPassword(password: string) {
+    const saltrounds = 10;
+    return await bcrypt.hash(password, saltrounds);
+  }
+
+  async findByEmail(email: string) {
+    return await this.prisma.bank_accounts.findUnique({
+      where: { email: email },
+    });
+  }
 
   async create(createBankAccountDto: CreateBankAccountDto) {
     const { firstName, lastName, email, password, rut } = createBankAccountDto;
@@ -17,12 +29,13 @@ export class BankAccountsService {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
     try {
+      rut
       return await this.prisma.bank_accounts.create({
         data: {
           firstName: firstName,
           lastName: lastName,
           email: email,
-          password: password,
+          password: await this.hashPassword(password),
           rut: rut,
         },
       });
