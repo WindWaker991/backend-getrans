@@ -42,4 +42,17 @@ export class BankAccountsController {
   deleteBankAccount(@Param('id') accountId: string) {
     return this.bankAccountsService.remove(accountId);
   }
+
+  @Get('search/:rut')
+  findByRut(@Param('rut') rut: string) {
+    return this.bankAccountsService.findByRut(rut);
+  }
+
+  @Get('search/:firstName/:lastName')
+  findByName(
+    @Param('firstName') firstName: string,
+    @Param('lastName') lastName: string,
+  ) {
+    return this.bankAccountsService.findByName(firstName, lastName);
+  }
 }
