@@ -19,6 +19,20 @@ export class BankAccountsService {
     });
   }
 
+  async findByRut(rut: string) {
+    return await this.prisma.bank_accounts.findUnique({
+      where: { rut: rut },
+    });
+  }
+
+  async findByName(firstName: string, lastName: string) {
+    return await this.prisma.bank_accounts.findMany({
+      where: { 
+        firstName: firstName, lastName: lastName },
+    });
+  }
+
+
   async create(createBankAccountDto: CreateBankAccountDto) {
     const { firstName, lastName, email, password, rut } = createBankAccountDto;
     const user = await this.prisma.bank_accounts.findUnique({
