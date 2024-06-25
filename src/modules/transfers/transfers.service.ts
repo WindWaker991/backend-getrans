@@ -68,4 +68,22 @@ export class TransfersService {
       },
     });
   }
+
+  async getTransferHistory(accountId: string) {
+    const accountWithTransfer = await this.prismaService.bank_accounts.findUnique({
+      where: { id: accountId },
+      include: {
+        transfers_origin: true,
+        transfers_destination: true,
+      },
+    });
+    if (!accountWithTransfer) {
+      throw new NotFoundException('Account not found');
+    }
+    const transferHistory = [
+      ...accountWithTransfer.transfers_origin,
+      ...accountWithTransfer.transfers_destination,
+    ];
+    return transferHistory;
+  }
 }

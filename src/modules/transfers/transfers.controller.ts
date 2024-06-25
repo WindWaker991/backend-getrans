@@ -25,4 +25,9 @@ export class TransfersController {
   remove(@Param('id') id: string) {
     return this.transfersService.remove(id);
   }
+
+  @Get('history/:id')
+  history(@Param('id') id: string) {
+    return this.transfersService.getTransferHistory(id);
+  }
 }
