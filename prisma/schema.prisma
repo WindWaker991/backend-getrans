@@ -23,6 +23,7 @@ model bank_accounts {
   me_pass               Int                @default(000000)
   rut                   String             @unique
   account_number        String             @unique @default(cuid())
+  balance               Float              @default(0)
   account_contacts      account_contacts[]
   transfers_destination transfers[]        @relation(name: "destination_account")
   transfers_origin      transfers[]        @relation(name: "origin_account")
