@@ -10,9 +10,8 @@ export class ContactsService {
   async create(createContactDto: CreateContactDto) {
     const response = await this.prisma.contacts.create({
       data: {
-        id: createContactDto.id,
         bank_account: {
-          connect: { id: createContactDto.bankAccount.id },
+          connect: { id: createContactDto.bank_account_id },
         },
       },
       include: { bank_account: true },
@@ -41,9 +40,8 @@ export class ContactsService {
     return await this.prisma.contacts.update({
       where: { id: id },
       data: {
-        id: updateContactDto.id,
         bank_account: {
-          connect: { id: updateContactDto.bankAccount.id },
+          connect: { id: updateContactDto.bank_account_id },
         },
       },
       include: { bank_account: true },
