@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class BankAccountsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   private async hashPassword(password: string) {
     const saltrounds = 10;
@@ -16,6 +16,7 @@ export class BankAccountsService {
   async findByEmail(email: string) {
     return await this.prisma.bank_accounts.findUnique({
       where: { email: email },
+      include: { contacts: true },
     });
   }
 
@@ -27,11 +28,12 @@ export class BankAccountsService {
 
   async findByName(firstName: string, lastName: string) {
     return await this.prisma.bank_accounts.findMany({
-      where: { 
-        firstName: firstName, lastName: lastName },
+      where: {
+        firstName: firstName,
+        lastName: lastName,
+      },
     });
   }
-
 
   async create(createBankAccountDto: CreateBankAccountDto) {
     const { firstName, lastName, email, password, rut } = createBankAccountDto;
@@ -43,7 +45,7 @@ export class BankAccountsService {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
     try {
-      rut
+      rut;
       return await this.prisma.bank_accounts.create({
         data: {
           firstName: firstName,
@@ -51,6 +53,7 @@ export class BankAccountsService {
           email: email,
           password: await this.hashPassword(password),
           rut: rut,
+          contacts: { create: {} },
         },
       });
     } catch (error) {

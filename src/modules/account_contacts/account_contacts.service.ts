@@ -25,8 +25,13 @@ export class AccountContactsService {
     });
   }
 
-  async findAll() {
-    return await this.prisma.account_contacts.findMany();
+  async findBankAccountContacts(contactListId: string) {
+    return await this.prisma.account_contacts.findMany({
+      where: { contact_id: contactListId },
+      include: {
+        bank_accounts: true,
+      },
+    });
   }
 
   async findOne(id: string) {
