@@ -4,12 +4,9 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class TransfersService {
-  constructor(
-    private readonly prismaService: PrismaService,
-  ) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(createTransferDto: CreateTransferDto) {
-
     return await this.prismaService.transfers.create({
       //TODO: revisar que el findOne funcione
       // accountBankOrigFound = this.bankAccountsService.findOne(createTransferDto.originId);
@@ -22,14 +19,14 @@ export class TransfersService {
         date: createTransferDto.date,
         origin: {
           connect: {
-            id: createTransferDto.originId
-          }
+            id: createTransferDto.originId,
+          },
         },
         destination: {
           connect: {
-            id: createTransferDto.destinationId
+            id: createTransferDto.destinationId,
           },
-        }
+        },
       },
     });
   }
@@ -38,7 +35,7 @@ export class TransfersService {
     return await this.prismaService.transfers.findMany({
       include: {
         origin: true,
-        destination: true
+        destination: true,
       },
     });
   }
@@ -50,7 +47,7 @@ export class TransfersService {
       },
       include: {
         origin: true,
-        destination: true
+        destination: true,
       },
     });
   }
@@ -64,19 +61,30 @@ export class TransfersService {
       },
       include: {
         origin: true,
-        destination: true
+        destination: true,
       },
     });
   }
 
   async getTransferHistory(accountId: string) {
-    const accountWithTransfer = await this.prismaService.bank_accounts.findUnique({
-      where: { id: accountId },
-      include: {
-        transfers_origin: true,
-        transfers_destination: true,
-      },
-    });
+    const accountWithTransfer =
+      await this.prismaService.bank_accounts.findUnique({
+        where: { id: accountId },
+        include: {
+          transfers_origin: {
+            include: {
+              origin: true,
+              destination: true,
+            },
+          },
+          transfers_destination: {
+            include: {
+              origin: true,
+              destination: true,
+            },
+          },
+        },
+      });
     if (!accountWithTransfer) {
       throw new NotFoundException('Account not found');
     }
