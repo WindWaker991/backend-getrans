@@ -8,21 +8,39 @@ export class AccountContactsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createAccountContactDto: CreateAccountContactDto) {
-    return await this.prisma.account_contacts.create({
-      data: {
-        contacts: {
-          connect: {
-            id: createAccountContactDto.contact_id,
+    if (createAccountContactDto.account_number) {
+      return await this.prisma.account_contacts.create({
+        data: {
+          contacts: {
+            connect: {
+              id: createAccountContactDto.contact_id,
+            },
           },
-        },
 
-        bank_accounts: {
-          connect: {
-            id: createAccountContactDto.account_id,
+          bank_accounts: {
+            connect: {
+              account_number: createAccountContactDto.account_number,
+            },
           },
         },
-      },
-    });
+      });
+    } else if (createAccountContactDto.account_id) {
+      return await this.prisma.account_contacts.create({
+        data: {
+          contacts: {
+            connect: {
+              id: createAccountContactDto.contact_id,
+            },
+          },
+
+          bank_accounts: {
+            connect: {
+              id: createAccountContactDto.account_id,
+            },
+          },
+        },
+      });
+    }
   }
 
   async findBankAccountContacts(contactListId: string) {
