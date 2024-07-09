@@ -1,30 +1,59 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { BankAccountsService } from '../bank_accounts/bank_accounts.service';
 
 @Injectable()
 export class TransfersService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly bankAccountsService: BankAccountsService
+  ) { }
 
   async create(createTransferDto: CreateTransferDto) {
+    const accountBankOrigFound = this.bankAccountsService.findOne(createTransferDto.originId);
+    if (!accountBankOrigFound) throw new NotFoundException('Origin account not found');
+    const accountBankDestFound = this.bankAccountsService.findOne(createTransferDto.originId);
+    if (!accountBankDestFound) throw new NotFoundException('Destination account not found');
+
+    // Check if origin account has enough balance
+    if ((await accountBankOrigFound).balance < createTransferDto.amount) {
+      throw new Error('Origin account has not enough balance');
+    }
+
+    // Update origin account balance
+    const originBalance = (await accountBankOrigFound).balance - createTransferDto.amount;
+
+    await this.bankAccountsService.update(
+      (await accountBankOrigFound).id,
+      {
+        balance: originBalance,
+      }
+    );
+
+    // Update destination account balance
+    const destinationBalance = (await accountBankDestFound).balance + createTransferDto.amount;
+    await this.bankAccountsService.update(
+      (await accountBankDestFound).id,
+      {
+        balance: destinationBalance,
+      }
+    );
+
+
     return await this.prismaService.transfers.create({
-      //TODO: revisar que el findOne funcione
-      // accountBankOrigFound = this.bankAccountsService.findOne(createTransferDto.originId);
-      // if(!accountBankOrigFound) throw new NotFoundException('Origin account not found');
-      // accountBankDestFound = this.bankAccountsService.findOne(createTransferDto.originId);
-      // if(!accountBankDestFound) throw new NotFoundException('Destination account not found');
       data: {
         amount: createTransferDto.amount,
         description: createTransferDto.description,
         date: createTransferDto.date,
         origin: {
           connect: {
-            id: createTransferDto.originId,
+            id: (await accountBankOrigFound).id,
           },
         },
         destination: {
           connect: {
-            id: createTransferDto.destinationId,
+            id: (await accountBankDestFound).id,
           },
         },
       },

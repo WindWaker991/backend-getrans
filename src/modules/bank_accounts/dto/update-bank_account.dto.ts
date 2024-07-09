@@ -4,4 +4,5 @@ export class UpdateBankAccountDto {
   email?: string;
   password?: string;
   rut?: string;
+  balance?: number;
 }
