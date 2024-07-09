@@ -11,19 +11,22 @@ export class TransfersService {
   ) { }
 
   async create(createTransferDto: CreateTransferDto) {
-    const accountBankOrigFound = this.bankAccountsService.findOne(createTransferDto.originId);
+    const accountBankOrigFound = await this.bankAccountsService.findOne(createTransferDto.originId);
+    console.log("🚀 ~ TransfersService ~ create ~ accountBankOrigFound:", accountBankOrigFound)
     if (!accountBankOrigFound) throw new NotFoundException('Origin account not found');
-    const accountBankDestFound = this.bankAccountsService.findOne(createTransferDto.originId);
+    const accountBankDestFound = await this.bankAccountsService.findOne(createTransferDto.destinationId);
+    console.log("🚀 ~ TransfersService ~ create ~ accountBankDestFound:", accountBankDestFound)
     if (!accountBankDestFound) throw new NotFoundException('Destination account not found');
 
     // Check if origin account has enough balance
-    if ((await accountBankOrigFound).balance < createTransferDto.amount) {
+    if (accountBankOrigFound.balance < createTransferDto.amount) {
       throw new Error('Origin account has not enough balance');
     }
 
     // Update origin account balance
-    const originBalance = (await accountBankOrigFound).balance - createTransferDto.amount;
-
+    //seba (origen)--> cristi (destino)
+    const originBalance = accountBankOrigFound.balance - createTransferDto.amount;
+    console.log("🚀 ~ TransfersService ~ create ~ originBalance:", originBalance)
     await this.bankAccountsService.update(
       (await accountBankOrigFound).id,
       {
@@ -32,7 +35,8 @@ export class TransfersService {
     );
 
     // Update destination account balance
-    const destinationBalance = (await accountBankDestFound).balance + createTransferDto.amount;
+    const destinationBalance = accountBankDestFound.balance + createTransferDto.amount;
+    console.log("🚀 ~ TransfersService ~ create ~ destinationBalance:", destinationBalance)
     await this.bankAccountsService.update(
       (await accountBankDestFound).id,
       {
@@ -48,12 +52,12 @@ export class TransfersService {
         date: createTransferDto.date,
         origin: {
           connect: {
-            id: (await accountBankOrigFound).id,
+            id: accountBankOrigFound.id,
           },
         },
         destination: {
           connect: {
-            id: (await accountBankDestFound).id,
+            id: accountBankDestFound.id,
           },
         },
       },
